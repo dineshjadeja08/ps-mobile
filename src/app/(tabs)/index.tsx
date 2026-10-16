@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { CategoryArt } from '@/components/category-art';
 import { ServiceCard } from '@/components/service-card';
 import { Screen } from '@/components/ui/screen';
 import { LoadingState, MessageState } from '@/components/ui/states';
@@ -12,8 +13,6 @@ import { api } from '@/lib/api';
 import { useT } from '@/i18n';
 import { useAuth } from '@/stores/auth';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
-
-const iconNames = ['sparkles-outline', 'construct-outline', 'hardware-chip-outline', 'water-outline', 'shield-checkmark-outline', 'car-outline', 'color-palette-outline', 'home-outline', 'ellipsis-horizontal'] as const;
 
 export default function HomeScreen() {
   const t = useT();
@@ -63,8 +62,8 @@ export default function HomeScreen() {
     </> : <>
       <SectionTitle title="Our Services" action={t('seeAll')} onPress={() => router.push('/(tabs)/categories')} />
       {categories.isLoading ? <LoadingState /> : categories.isError ? <MessageState title="Couldn’t load services" message={categories.error.message} actionLabel="Retry" onAction={() => void categories.refetch()} /> : <View style={styles.categoryGrid}>
-        {categoryItems.map((category, index) => <Pressable key={category.id} onPress={() => router.push({ pathname: '/(tabs)/categories', params: { category: category.slug } })} style={styles.category}>
-          <View style={styles.categoryArt}>{category.image_url ? <Image source={category.image_url} style={styles.categoryImage} contentFit="contain" transition={150} /> : <Ionicons name={iconNames[index % iconNames.length]} size={30} color={colors.primary} />}</View>
+        {categoryItems.map((category) => <Pressable key={category.id} onPress={() => router.push({ pathname: '/(tabs)/categories', params: { category: category.slug } })} style={styles.category}>
+          <CategoryArt category={category} size={30} style={styles.categoryArt} />
           <Text numberOfLines={2} style={styles.categoryName}>{category.name}</Text>
         </Pressable>)}
         <Pressable onPress={() => router.push('/(tabs)/categories')} style={styles.category}><View style={styles.categoryArt}><Ionicons name="grid-outline" size={29} color={colors.primary} /></View><Text style={styles.categoryName}>{t('viewAll')}</Text></Pressable>
@@ -112,7 +111,6 @@ const styles = StyleSheet.create({
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: spacing.sm, borderRadius: radius.card, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border },
   category: { width: '25%', alignItems: 'center', gap: 6, paddingHorizontal: 3, paddingVertical: 9 },
   categoryArt: { width: 62, height: 58, alignItems: 'center', justifyContent: 'center', borderRadius: 16, backgroundColor: colors.primarySoft },
-  categoryImage: { width: 54, height: 48 },
   categoryName: { minHeight: 28, color: colors.heading, fontFamily: typography.semibold, fontSize: 10, lineHeight: 14, textAlign: 'center' },
   assurance: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.md, paddingHorizontal: spacing.sm, borderRadius: 16, backgroundColor: colors.primarySoft },
   assuranceItem: { flex: 1, alignItems: 'center', gap: 5 },

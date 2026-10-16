@@ -1,5 +1,14 @@
 import type { ConfirmationResult } from '@react-native-firebase/auth';
-import { getAuth, signInWithPhoneNumber, signOut } from '@react-native-firebase/auth';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+// Expo Go has no Firebase native code, so load it lazily. The rest of the app can then
+// still be previewed in Expo Go; only phone login needs a real build.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+function firebaseAuth() {
+  if (isExpoGo) throw new Error('Phone login is not available in Expo Go. Use the Purple Squad app build to sign in.');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('@react-native-firebase/auth') as typeof import('@react-native-firebase/auth');
+}
 
 let pendingConfirmation: ConfirmationResult | null = null;
 let verifiedIdToken: string | null = null;
@@ -23,6 +32,7 @@ function readableFirebaseError(error: unknown): Error {
 export async function requestFirebaseOtp(phoneNumber: string) {
   try {
     verifiedIdToken = null;
+    const { getAuth, signInWithPhoneNumber } = firebaseAuth();
     pendingConfirmation = await signInWithPhoneNumber(getAuth(), phoneNumber);
   } catch (error) {
     throw readableFirebaseError(error);
@@ -53,5 +63,7 @@ export function clearFirebaseOtpState() {
 
 export async function signOutFirebase() {
   clearFirebaseOtpState();
+  if (isExpoGo) return;
+  const { getAuth, signOut } = firebaseAuth();
   if (getAuth().currentUser) await signOut(getAuth());
 }
