@@ -45,7 +45,7 @@ export default function HomeScreen() {
     {area.data ? <Text style={[styles.areaMessage, { color: area.data.is_supported ? colors.success : colors.danger }]}>{area.data.is_supported ? `${t('availableIn')} ${area.data.service_area?.name ?? postalCode}` : t('unavailableArea')}</Text> : null}
 
     <View style={styles.hero}>
-      <Image source={require('../../../assets/images/welcome-hero.png')} contentFit="cover" contentPosition="center" style={styles.heroImage} />
+      <Image source={require('../../../assets/images/welcome-hero.jpg')} contentFit="cover" contentPosition="center" style={styles.heroImage} />
       <View style={styles.heroShade} />
       <View style={styles.heroCopy}>
         <Text style={styles.heroEyebrow}>PURPLE SQUAD HOME CARE</Text>

@@ -13,7 +13,7 @@ const services = [
 
 export default function OnboardingScreen() {
   const open = async (route: '/register' | '/login') => { await onboardingStorage.complete(); router.push(route); };
-  return <ImageBackground source={require('../../assets/images/welcome-hero.png')} resizeMode="cover" style={styles.background}>
+  return <ImageBackground source={require('../../assets/images/welcome-hero.jpg')} resizeMode="cover" style={styles.background}>
     <View style={styles.scrim} />
     <SafeAreaView style={styles.safe}>
       <View style={styles.heroCopy}><Image source={require('../../assets/brand/logo.png')} contentFit="contain" style={styles.logo} /><Text style={styles.heroTitle}>Premium care for{`\n`}your <Text style={styles.heroAccent}>home.</Text></Text><View style={styles.rule} /><Text style={styles.heroBody}>Book trusted Purple Squad professionals{`\n`}when you need them.</Text></View>
