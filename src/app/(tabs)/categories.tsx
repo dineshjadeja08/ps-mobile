@@ -1,25 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ServiceCard } from '@/components/service-card';
 import { Screen } from '@/components/ui/screen';
-import { LoadingState, MessageState } from '@/components/ui/states';
+import { MessageState } from '@/components/ui/states';
+import { ServiceCardSkeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 export default function CategoriesScreen() {
   const params = useLocalSearchParams<{ category?: string }>(); const [category, setCategory] = useState(params.category ?? ''); const [search, setSearch] = useState('');
   const categories = useQuery({ queryKey: ['categories'], queryFn: api.catalogue.categories });
-  const services = useQuery({ queryKey: ['services', category], queryFn: () => api.catalogue.services({ category: category || undefined, page_size: 100 }) });
+  const services = useQuery({ queryKey: ['services', category], queryFn: () => api.catalogue.services({ category: category || undefined, page_size: 100 }), placeholderData: keepPreviousData });
   const filtered = useMemo(() => services.data?.results.filter((item) => `${item.name} ${item.short_description}`.toLowerCase().includes(search.toLowerCase())) ?? [], [services.data, search]);
   const selectedName = category ? categories.data?.find((item) => item.slug === category)?.name : 'All services';
   return <Screen title="Services" subtitle="Choose what your home needs today."><View style={styles.promo}><View style={styles.promoCopy}><Text style={styles.promoEyebrow}>BOOK WITH CONFIDENCE</Text><Text style={styles.promoTitle}>Trusted experts.{`\n`}Transparent prices.</Text></View><View style={styles.promoMark}><Ionicons name="shield-checkmark" size={42} color={colors.white} /></View></View><View style={styles.search}><View style={styles.searchIcon}><Ionicons name="search" size={17} color={colors.white} /></View><TextInput value={search} onChangeText={setSearch} placeholder="Search AC, fridge, cleaning…" placeholderTextColor="#8A8597" style={styles.searchInput} />{search ? <Pressable onPress={() => setSearch('')}><Ionicons name="close-circle" size={20} color={colors.muted} /></Pressable> : null}</View>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}><CategoryTile active={!category} label="All" onPress={() => setCategory('')} />{categories.data?.map((item) => <CategoryTile key={item.id} active={category === item.slug} label={item.name} image={item.image_url} onPress={() => setCategory(item.slug)} />)}</ScrollView>
     <View style={styles.sectionHeading}><View><Text style={styles.sectionTitle}>{selectedName}</Text><Text style={styles.sectionSubtitle}>{filtered.length} services available</Text></View><View style={styles.verified}><Ionicons name="shield-checkmark" size={15} color={colors.success} /><Text style={styles.verifiedText}>Verified</Text></View></View>
-    {services.isLoading ? <LoadingState /> : services.isError ? <MessageState title="Couldn’t load services" message={services.error.message} actionLabel="Retry" onAction={() => void services.refetch()} /> : filtered.length ? filtered.map((service) => <ServiceCard key={service.id} service={service} />) : <MessageState title="No services found" message="Try another category or a shorter search." />}
+    {services.isLoading ? <ServiceCardSkeleton /> : services.isError ? <MessageState title="Couldn’t load services" message={services.error.message} actionLabel="Retry" onAction={() => void services.refetch()} /> : filtered.length ? filtered.map((service) => <ServiceCard key={service.id} service={service} />) : <MessageState title="No services found" message="Try another category or a shorter search." />}
   </Screen>;
 }
 function CategoryTile({ active, label, image, onPress }: { active: boolean; label: string; image?: string; onPress: () => void }) { return <Pressable onPress={onPress} style={[styles.tile, active && styles.tileActive]}><View style={styles.tileArt}>{image ? <Image source={image} contentFit="contain" style={styles.tileImage} /> : <Ionicons name="grid-outline" size={29} color={colors.primary} />}</View><Text numberOfLines={2} style={[styles.tileText, active && styles.tileTextActive]}>{label}</Text></Pressable>; }

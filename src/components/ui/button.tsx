@@ -1,10 +1,11 @@
+import * as Haptics from 'expo-haptics';
 import { PropsWithChildren } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
 import { colors, radius, typography } from '@/theme/tokens';
 
 type Props = PressableProps & { loading?: boolean; variant?: 'primary' | 'secondary' | 'danger' };
-export function Button({ children, loading, variant = 'primary', disabled, style, ...props }: PropsWithChildren<Props>) {
-  return <Pressable accessibilityRole="button" disabled={disabled || loading} style={(state) => [styles.base, styles[variant], state.pressed && styles.pressed, (disabled || loading) && styles.disabled, typeof style === 'function' ? style(state) : style]} {...props}>
+export function Button({ children, loading, variant = 'primary', disabled, style, onPress, ...props }: PropsWithChildren<Props>) {
+  return <Pressable accessibilityRole="button" accessibilityState={{ disabled: Boolean(disabled || loading), busy: Boolean(loading) }} disabled={disabled || loading} onPress={(event) => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress?.(event); }} style={(state) => [styles.base, styles[variant], state.pressed && styles.pressed, (disabled || loading) && styles.disabled, typeof style === 'function' ? style(state) : style]} {...props}>
     {loading ? <ActivityIndicator color={variant === 'primary' ? colors.white : colors.primary} /> : <Text style={[styles.label, variant !== 'primary' && styles.secondaryLabel, variant === 'danger' && styles.dangerLabel]}>{children}</Text>}
   </Pressable>;
 }

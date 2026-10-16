@@ -1,9 +1,33 @@
 {
-  "cli": { "version": ">= 16.0.0" },
-  "build": {
-    "development": { "developmentClient": true, "distribution": "internal", "environment": "development" },
-    "preview": { "distribution": "internal", "environment": "preview", "android": { "buildType": "apk" } },
-    "production": { "autoIncrement": true, "environment": "production" }
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
   },
-  "submit": { "production": {} }
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "environment": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "armeabi-v7a,arm64-v8a"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "environment": "production",
+      "env": {
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "armeabi-v7a,arm64-v8a"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
 }

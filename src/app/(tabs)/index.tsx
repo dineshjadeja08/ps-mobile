@@ -7,6 +7,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ServiceCard } from '@/components/service-card';
 import { Screen } from '@/components/ui/screen';
 import { LoadingState, MessageState } from '@/components/ui/states';
+import { ServiceCardSkeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
 import { useT } from '@/i18n';
 import { useAuth } from '@/stores/auth';
@@ -54,16 +55,16 @@ export default function HomeScreen() {
       </View>
     </View>
 
-    <View style={styles.searchBox}><Ionicons name="search" size={21} color={colors.muted} /><TextInput value={search} onChangeText={setSearch} placeholder={t('searchPlaceholder')} placeholderTextColor={colors.muted} style={styles.searchInput} /><Ionicons name="options-outline" size={20} color={colors.primary} /></View>
+    <View style={styles.searchBox}><Ionicons name="search" size={21} color={colors.muted} /><TextInput value={search} onChangeText={setSearch} placeholder={t('searchPlaceholder')} placeholderTextColor={colors.muted} style={styles.searchInput} returnKeyType="search" />{search ? <Pressable accessibilityLabel="Clear search" hitSlop={10} onPress={() => setSearch('')}><Ionicons name="close-circle" size={20} color={colors.muted} /></Pressable> : null}</View>
 
     {search ? <>
       <SectionTitle title={t('searchResults')} action={t('clear')} onPress={() => setSearch('')} />
-      {services.isLoading ? <LoadingState /> : visibleServices.length ? visibleServices.map((service) => <ServiceCard key={service.id} service={service} />) : <MessageState title={t('noMatches')} message={t('tryAnother')} />}
+      {services.isLoading ? <ServiceCardSkeleton /> : visibleServices.length ? visibleServices.map((service) => <ServiceCard key={service.id} service={service} />) : <MessageState title={t('noMatches')} message={t('tryAnother')} />}
     </> : <>
       <SectionTitle title="Our Services" action={t('seeAll')} onPress={() => router.push('/(tabs)/categories')} />
       {categories.isLoading ? <LoadingState /> : categories.isError ? <MessageState title="Couldn’t load services" message={categories.error.message} actionLabel="Retry" onAction={() => void categories.refetch()} /> : <View style={styles.categoryGrid}>
         {categoryItems.map((category, index) => <Pressable key={category.id} onPress={() => router.push({ pathname: '/(tabs)/categories', params: { category: category.slug } })} style={styles.category}>
-          <View style={styles.categoryArt}>{category.image_url ? <Image source={category.image_url} style={styles.categoryImage} contentFit="contain" /> : <Ionicons name={iconNames[index % iconNames.length]} size={30} color={colors.primary} />}</View>
+          <View style={styles.categoryArt}>{category.image_url ? <Image source={category.image_url} style={styles.categoryImage} contentFit="contain" transition={150} /> : <Ionicons name={iconNames[index % iconNames.length]} size={30} color={colors.primary} />}</View>
           <Text numberOfLines={2} style={styles.categoryName}>{category.name}</Text>
         </Pressable>)}
         <Pressable onPress={() => router.push('/(tabs)/categories')} style={styles.category}><View style={styles.categoryArt}><Ionicons name="grid-outline" size={29} color={colors.primary} /></View><Text style={styles.categoryName}>{t('viewAll')}</Text></Pressable>
@@ -71,7 +72,7 @@ export default function HomeScreen() {
 
       <View style={styles.assurance}><Assurance icon="shield-checkmark-outline" label={t('verifiedPros')} /><Assurance icon="pricetag-outline" label={t('upfrontPrice')} /><Assurance icon="calendar-outline" label={t('easyBooking')} /></View>
       <SectionTitle title="Trending Near You" action={t('seeAll')} onPress={() => router.push('/(tabs)/categories')} />
-      {services.isLoading ? <LoadingState /> : services.isError ? <MessageState title="Couldn’t load services" message={services.error.message} actionLabel="Retry" onAction={() => void services.refetch()} /> : visibleServices.map((service) => <ServiceCard key={service.id} service={service} />)}
+      {services.isLoading ? <ServiceCardSkeleton /> : services.isError ? <MessageState title="Couldn’t load services" message={services.error.message} actionLabel="Retry" onAction={() => void services.refetch()} /> : visibleServices.map((service) => <ServiceCard key={service.id} service={service} />)}
     </>}
   </Screen>;
 }
